@@ -1,6 +1,7 @@
 import { CalendarCheck, Tractor, Users, Wallet } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Banner, BarChart, Panel, ProgressRow, StatCard, StatusBadge } from "@/components/DashboardCard";
+import {Banner, BarChart, Panel, ProgressRow, StatCard, StatusBadge} from "@/components/DashboardCard";
+import { requireRole } from "@/lib/auth/require-role";
 
 // Placeholder data - replace with Supabase queries
 const users = [
@@ -22,12 +23,16 @@ const categories = [
   { label: "Harvesters", percent: 20 }, { label: "Others", percent: 15 },
 ];
 
-export default function AdminDashboard() {
-  return (
-    <DashboardLayout role="admin" userName="Admin User">
-      <div className="space-y-6">
-        <Banner title="System Overview" subtitle="Monitor users, equipment listings, and rentals across AgriRent." />
+export default async function AdminDashboard() {
+  const profile = await requireRole("admin");
 
+  return (
+    <DashboardLayout role="admin" userName={profile.full_name}>
+      <div className="space-y-6">
+        <Banner
+          title="System Overview"
+          subtitle="Monitor users, equipment listings, and rentals across AgriRent."
+        />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Total Users" value={24} icon={<Users size={20} />} trend="+3 this week" />
           <StatCard label="Equipment Listings" value={18} icon={<Tractor size={20} />} tone="blue" trend="+2 this week" />
