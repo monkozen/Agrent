@@ -1,5 +1,6 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Panel, StatCard, StatusBadge } from "@/components/DashboardCard";
+import { requireRole } from "@/lib/auth/require-role";
 
 const users = [
   { name: "Juan Dela Cruz", role: "Farmer", date: "Oct 28, 2026", status: "Active" },
@@ -12,9 +13,11 @@ const listings = [
   { name: "DC-70 Harvester", category: "Harvester", price: "₱6,000/day" },
 ];
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const profile = await requireRole("admin");
+
   return (
-    <DashboardLayout role="admin" userName="Admin User">
+    <DashboardLayout role="admin" userName={profile.full_name}>
       <h1 className="text-2xl font-semibold text-gray-900">System Overview</h1>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">

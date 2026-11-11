@@ -1,15 +1,18 @@
 import DashboardLayout from "@/components/DashboardLayout";
 import { Panel, StatCard } from "@/components/DashboardCard";
+import { requireRole } from "@/lib/auth/require-role";
 
 const requests = [
   { id: 1, farmer: "Juan Dela Cruz", equipment: "Kubota M7040", dates: "Oct 10 - Oct 12, 2026", total: "₱7,000" },
   { id: 2, farmer: "Pedro Reyes", equipment: "Yanmar Hand Tractor", dates: "Oct 15 - Oct 17, 2026", total: "₱4,000" },
 ];
 
-export default function OwnerDashboard() {
+export default async function OwnerDashboard() {
+  const profile = await requireRole("owner");
+
   return (
-    <DashboardLayout role="owner" userName="Maria Santos">
-      <h1 className="text-2xl font-semibold text-gray-900">Welcome, Maria!</h1>
+    <DashboardLayout role="owner" userName={profile.full_name}>
+      <h1 className="text-2xl font-semibold text-gray-900">Welcome, {profile.full_name}!</h1>
       <p className="mt-1 text-sm text-gray-500">Manage your equipment and rental requests.</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">

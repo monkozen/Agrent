@@ -71,9 +71,11 @@ export default function DashboardLayout({
           );
         })}
       </ul>
-      <button className="mt-4 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
-        <LogOut size={18} /> Log out
-      </button>
+        <form action="/auth/signout" method="post" className="mt-4">
+          <button type="submit" className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
+            <LogOut size={18} /> Log out
+          </button>
+        </form>
     </nav>
   );
 

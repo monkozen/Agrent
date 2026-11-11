@@ -4,6 +4,7 @@ import { useState, FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Tractor } from "lucide-react";
+import { createClient } from '@/lib/supabase/client'
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,18 +14,72 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: FormEvent) {
-    e.preventDefault();
-    setError("");
-    if (!email || !password) {
-      setError("Enter your email and password.");
-      return;
-    }
-    setLoading(true);
-    // TODO (backend): supabase.auth.signInWithPassword({ email, password })
-    setTimeout(() => router.push("/dashboard/farmer"), 600);
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  event.preventDefault();
+
+  setError("");
+
+  if (!email || !password) {
+    setError("Enter your email and password.");
+    return;
   }
 
+  setLoading(true);
+
+  const supabase = createClient();
+
+  const { data, error: loginError } =
+    await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+  if (loginError || !data.user) {
+    setError("Invalid email or password.");
+    setLoading(false);
+    return;
+  }
+
+  const { data: profile, error: profileError } =
+    await supabase
+      .from("profiles")
+      .select("role, account_status")
+      .eq("id", data.user.id)
+      .single();
+
+  if (profileError || !profile) {
+    await supabase.auth.signOut({ scope: "local" });
+    setError("Unable to load your account profile.");
+    setLoading(false);
+    return;
+  }
+
+  if (profile.account_status !== "active") {
+    await supabase.auth.signOut({ scope: "local" });
+    setError("Your account is currently unavailable.");
+    setLoading(false);
+    return;
+  }
+
+  const dashboardRoutes = {
+    farmer: "/dashboard/farmer",
+    owner: "/dashboard/owner",
+    admin: "/dashboard/admin",
+  } as const;
+
+  const role = profile.role as keyof typeof dashboardRoutes;
+  const destination = dashboardRoutes[role];
+
+  if (!destination) {
+    await supabase.auth.signOut({ scope: "local" });
+    setError("Invalid account role.");
+    setLoading(false);
+    return;
+  }
+
+  router.replace(destination);
+  router.refresh();
+}
   return (
     <main className="flex min-h-screen items-center justify-center bg-green-50 px-4 py-10">
       <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
@@ -45,8 +100,7 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20"
-            />
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 caret-gray-900 outline-none placeholder:text-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600/20"/>
           </div>
 
           <div>
@@ -62,7 +116,7 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20"
+                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 text-gray-900 bg-white caret-gray-900 placeholder:text-gray-300"
               />
               <button
                 type="button"

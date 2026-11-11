@@ -1,16 +1,19 @@
 import { Search, Sparkles, Scale } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { ActionCard, Panel, StatusBadge } from "@/components/DashboardCard";
+import { requireRole } from "@/lib/auth/require-role";
 
 const rentals = [
   { id: 1, name: "Kubota M7040", category: "Tractor", dates: "Oct 10 - Oct 12, 2026", status: "Approved" },
   { id: 2, name: "Yanmar Hand Tractor", category: "Hand Tractor", dates: "Sep 5 - Sep 6, 2026", status: "Completed" },
 ];
 
-export default function FarmerDashboard() {
+export default async function FarmerDashboard() {
+  const profile = await requireRole("farmer");
+
   return (
-    <DashboardLayout role="farmer" userName="Juan Dela Cruz">
-      <h1 className="text-2xl font-semibold text-gray-900">Welcome, Juan!</h1>
+    <DashboardLayout role="farmer" userName={profile.full_name}>
+      <h1 className="text-2xl font-semibold text-gray-900">Welcome, {profile.full_name}!</h1>
       <p className="mt-1 text-sm text-gray-500">Find the right equipment for your farming needs.</p>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-3">
