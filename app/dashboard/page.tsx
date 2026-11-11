@@ -1,70 +1,74 @@
-
 import Link from "next/link";
+import { ArrowRight, CalendarCheck, Plus, Search, Sparkles, Sprout, Tractor, Wallet } from "lucide-react";
 
-export default function Home() {
+const roles = [
+  {
+    href: "/dashboard/farmer",
+    title: "I'm a Farmer",
+    desc: "Find and rent the right equipment for your farm.",
+    icon: Sprout,
+    features: [
+      { icon: Search, text: "Browse equipment" },
+      { icon: Sparkles, text: "Get AI recommendations" },
+      { icon: CalendarCheck, text: "Track your rentals" },
+    ],
+    cta: "Continue as Farmer",
+  },
+  {
+    href: "/dashboard/owner",
+    title: "I'm an Equipment Owner",
+    desc: "List your machines and manage rental requests.",
+    icon: Tractor,
+    features: [
+      { icon: Plus, text: "List your equipment" },
+      { icon: CalendarCheck, text: "Approve rental requests" },
+      { icon: Wallet, text: "Track your earnings" },
+    ],
+    cta: "Continue as Owner",
+  },
+];
+
+export default function DashboardPicker() {
   return (
-    <main className="min-h-screen bg-gray-100 p-8">
-      <div className="mx-auto max-w-6xl">
-        <h1 className="text-3xl font-bold text-green-800">
-          AgriRent
-        </h1>
+    <main className="flex min-h-screen flex-col items-center justify-center bg-green-50 px-4 py-12">
+      <Link href="/" className="mb-8 flex items-center gap-2 text-xl font-bold text-green-800">
+        <Tractor className="h-6 w-6" /> AgriRent
+      </Link>
 
-        <p className="mt-2 text-gray-600">
-          Agricultural Equipment Rental System
-        </p>
+      <h1 className="text-center text-3xl font-bold text-gray-900">How will you use AgriRent today?</h1>
+      <p className="mt-2 text-center text-gray-600">Choose your dashboard to continue.</p>
 
-        <div className="mt-8 rounded-xl bg-green-800 p-8 text-white">
-          <h2 className="text-3xl font-bold">
-            Welcome to AgriRent!
-          </h2>
-          <p className="mt-3">Choose your dashboard.</p>
-        </div>
+      <div className="mt-10 grid w-full max-w-3xl gap-6 md:grid-cols-2">
+        {roles.map((r) => (
+          <Link
+            key={r.href}
+            href={r.href}
+            className="group flex flex-col rounded-2xl border border-gray-200 bg-white p-7 shadow-sm transition hover:-translate-y-1 hover:border-green-600 hover:shadow-md"
+          >
+            <span className="flex h-14 w-14 items-center justify-center rounded-xl bg-green-100 text-green-700">
+              <r.icon className="h-7 w-7" />
+            </span>
 
-        <div className="mt-8 grid gap-6 md:grid-cols-3">
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="text-xl font-bold">Admin Dashboard</h2>
-            <p className="mt-3 text-gray-600">
-              Manage users and equipment.
-            </p>
-            <Link
-              href="/dashboard/admin"
-              className="mt-6 block rounded-lg bg-green-700 p-3 text-center text-white"
-            >
-              Open Admin
-            </Link>
-          </div>
+            <h2 className="mt-5 text-xl font-semibold text-gray-900">{r.title}</h2>
+            <p className="mt-1 text-sm text-gray-600">{r.desc}</p>
 
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="text-xl font-bold">Farmer Dashboard</h2>
-            <p className="mt-3 text-gray-600">
-              Browse equipment and rentals.
-            </p>
-            <Link
-              href="/dashboard/farmer"
-              className="mt-6 block rounded-lg bg-green-700 p-3 text-center text-white"
-            >
-              Open Farmer
-            </Link>
-          </div>
+            <ul className="mt-5 space-y-2 border-t border-gray-100 pt-5">
+              {r.features.map((f) => (
+                <li key={f.text} className="flex items-center gap-2 text-sm text-gray-700">
+                  <f.icon className="h-4 w-4 text-green-700" /> {f.text}
+                </li>
+              ))}
+            </ul>
 
-          <div className="rounded-xl bg-white p-6 shadow">
-            <h2 className="text-xl font-bold">Owner Dashboard</h2>
-            <p className="mt-3 text-gray-600">
-              Manage equipment and rental requests.
-            </p>
-            <Link
-              href="/dashboard/owner"
-              className="mt-6 block rounded-lg bg-green-700 p-3 text-center text-white"
-            >
-              Open Owner
-            </Link>
-          </div>
-        </div>
-
-        <footer className="mt-12 text-center text-gray-500">
-          AgriRent © 2026
-        </footer>
+            <span className="mt-6 flex items-center justify-between rounded-lg bg-green-700 px-4 py-3 text-sm font-semibold text-white transition group-hover:bg-green-800">
+              {r.cta}
+              <ArrowRight className="h-4 w-4 transition group-hover:translate-x-1" />
+            </span>
+          </Link>
+        ))}
       </div>
+
+      <p className="mt-10 text-sm text-gray-500">AgriRent © 2026</p>
     </main>
   );
 }

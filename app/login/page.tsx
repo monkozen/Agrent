@@ -22,7 +22,7 @@ export default function LoginPage() {
     }
     setLoading(true);
     // TODO (backend): supabase.auth.signInWithPassword({ email, password })
-    setTimeout(() => router.push("/dashboard/farmer"), 600);
+    setTimeout(() => router.push("/dashboard"), 600);
   }
 
   return (
