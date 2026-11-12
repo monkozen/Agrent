@@ -5,6 +5,7 @@ import { MapPin, Package } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import { requireRole } from "@/lib/auth/require-role";
 import { createClient } from "@/lib/supabase/server";
+import Link from "next/link";
 
 type EquipmentImage = {
   equipment_id: string;
@@ -223,8 +224,16 @@ async function AdminListingsContent() {
                     <p className="text-xs text-gray-500">
                       Condition: {item.equipment_condition || "Not specified"}
                     </p>
+
+                    <Link
+                      href={`/dashboard/admin/listings/${item.id}`}
+                      className="block w-full rounded-lg border border-green-700 px-4 py-2.5 text-center text-sm font-semibold text-green-700 hover:bg-green-50"
+                    >
+                      View Details
+                    </Link>
+
                     {item.status === "pending" && (
-                        <ReviewActions equipmentId={item.id} />
+                      <ReviewActions equipmentId={item.id} />
                     )}
                   </div>
                 </div>

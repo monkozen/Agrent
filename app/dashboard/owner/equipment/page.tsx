@@ -213,6 +213,12 @@ async function OwnerEquipmentContent() {
                     <p className="text-xs text-gray-500">
                       Condition: {item.equipment_condition || "Not specified"}
                     </p>
+                    <Link
+                      href={`/dashboard/owner/equipment/${item.id}`}
+                      className="block w-full rounded-lg border border-green-700 px-4 py-2.5 text-center text-sm font-semibold text-green-700 hover:bg-green-50"
+                    >
+                      View Details
+                    </Link>
                     {item.status === "rejected" && (
                       <div className="space-y-3">
                         <div className="rounded-lg border border-red-200 bg-red-50 p-3">
