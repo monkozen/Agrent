@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import {
   Bell, LayoutDashboard, Search, Sparkles, Scale, CalendarCheck, Heart, Settings,
   LogOut, Tractor, PlusCircle, Wallet, User, Users, BarChart3, Menu, X,
+  ChevronDown,
 } from "lucide-react";
 
 export type Role = "farmer" | "owner" | "admin";
@@ -46,6 +47,7 @@ export default function DashboardLayout({
 }: { role: Role; userName: string; children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   const sidebar = (
     <nav className="flex h-full flex-col p-4">
@@ -71,11 +73,6 @@ export default function DashboardLayout({
           );
         })}
       </ul>
-        <form action="/auth/signout" method="post" className="mt-4">
-          <button type="submit" className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-red-600 hover:bg-red-50">
-            <LogOut size={18} /> Log out
-          </button>
-        </form>
     </nav>
   );
 
@@ -96,15 +93,77 @@ export default function DashboardLayout({
             {open ? <X /> : <Menu />}
           </button>
           <div className="ml-auto flex items-center gap-4">
-            <button aria-label="Notifications" className="text-gray-500 hover:text-gray-700"><Bell size={20} /></button>
-            <div className="flex items-center gap-3">
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-800">
-                {userName.charAt(0)}
-              </span>
-              <div className="hidden leading-tight sm:block">
-                <p className="text-sm font-medium text-gray-900">{userName}</p>
-                <p className="text-xs text-gray-500">{roleLabel[role]}</p>
-              </div>
+            <button
+              aria-label="Notifications"
+              className="text-gray-500 hover:text-gray-700"
+            >
+              <Bell size={20} />
+            </button>
+
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountMenuOpen((value) => !value)}
+                aria-expanded={accountMenuOpen}
+                aria-haspopup="menu"
+                className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-gray-100"
+              >
+                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-800">
+                  {userName.charAt(0)}
+                </span>
+
+                <div className="hidden text-left leading-tight sm:block">
+                  <p className="text-sm font-medium text-gray-900">{userName}</p>
+                  <p className="text-xs text-gray-500">{roleLabel[role]}</p>
+                </div>
+
+                <ChevronDown
+                  size={16}
+                  className={`text-gray-500 transition-transform ${
+                    accountMenuOpen ? "rotate-180" : ""
+                  }`}
+                />
+              </button>
+
+              {accountMenuOpen && (
+                <div
+                  role="menu"
+                  className="absolute right-0 z-50 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg"
+                >
+                  <Link
+                    href="/dashboard/profile"
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <User size={16} />
+                    My Profile
+                  </Link>
+
+                  <Link
+                    href={`/dashboard/${role}/settings`}
+                    role="menuitem"
+                    onClick={() => setAccountMenuOpen(false)}
+                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
+                  >
+                    <Settings size={16} />
+                    Account Settings
+                  </Link>
+
+                  <div className="my-2 border-t border-gray-100" />
+
+                  <form action="/auth/signout" method="post">
+                    <button
+                      type="submit"
+                      role="menuitem"
+                      className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                    >
+                      <LogOut size={16} />
+                      Log Out
+                    </button>
+                  </form>
+                </div>
+              )}
             </div>
           </div>
         </header>

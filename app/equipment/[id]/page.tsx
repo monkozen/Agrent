@@ -1,10 +1,11 @@
+import { Suspense } from "react";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { MapPin } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import { equipment, peso } from "@/lib/mockEquipment";
 
-export default async function EquipmentDetailPage({ params }: { params: Promise<{ id: string }> }) {
+async function EquipmentDetailContent({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const item = equipment.find((e) => e.id === id);
   if (!item) notFound();
@@ -56,5 +57,17 @@ export default async function EquipmentDetailPage({ params }: { params: Promise<
         </section>
       </div>
     </div>
+  );
+}
+
+export default function EquipmentDetailPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  return (
+    <Suspense fallback={<p>Loading equipment details...</p>}>
+      <EquipmentDetailContent params={params} />
+    </Suspense>
   );
 }

@@ -2,6 +2,7 @@ import { CalendarCheck, Tractor, Users, Wallet } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
 import {Banner, BarChart, Panel, ProgressRow, StatCard, StatusBadge} from "@/components/DashboardCard";
 import { requireRole } from "@/lib/auth/require-role";
+import { Suspense } from "react";
 
 // Placeholder data - replace with Supabase queries
 const users = [
@@ -23,7 +24,7 @@ const categories = [
   { label: "Harvesters", percent: 20 }, { label: "Others", percent: 15 },
 ];
 
-export default async function AdminDashboard() {
+async function AdminDashboardContent() {
   const profile = await requireRole("admin");
 
   return (
@@ -81,5 +82,13 @@ export default async function AdminDashboard() {
         </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function AdminDashboard() {
+  return (
+    <Suspense fallback={<p>Loading admin dashboard...</p>}>
+      <AdminDashboardContent />
+    </Suspense>
   );
 }

@@ -3,6 +3,7 @@ import { ArrowRight, CalendarCheck, CheckCircle2, Heart, MapPin, Scale, Search, 
 import DashboardLayout from "@/components/DashboardLayout";
 import {ActionCard, Banner, Panel, StatCard, StatusBadge} from "@/components/DashboardCard";
 import { requireRole } from "@/lib/auth/require-role";
+import { Suspense } from "react";
 
 // Placeholder data - replace with Supabase queries
 const rentals = [
@@ -16,7 +17,7 @@ const suggestions = [
   { id: 5, name: "Rice Planter", price: "₱3,000/day", place: "Batangas City" },
 ];
 
-export default async function FarmerDashboard() {
+async function FarmerDashboardContent() {
   const profile = await requireRole("farmer");
 
   return (
@@ -87,5 +88,13 @@ export default async function FarmerDashboard() {
         </section>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function FarmerDashboard() {
+  return (
+    <Suspense fallback={<p>Loading farmer dashboard...</p>}>
+      <FarmerDashboardContent />
+    </Suspense>
   );
 }

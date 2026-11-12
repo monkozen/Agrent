@@ -3,6 +3,8 @@ import {ArrowRight, CalendarCheck, CheckCircle2, Heart, MapPin, Scale, Search, S
 import DashboardLayout from "@/components/DashboardLayout";
 import {ActionCard, Banner, Panel, StatCard, StatusBadge} from "@/components/DashboardCard";
 import { requireRole } from "@/lib/auth/require-role";
+import { Suspense } from "react";
+import { connection } from "next/server";
 
 const rentals = [
   {
@@ -49,7 +51,9 @@ const suggestions = [
   },
 ];
 
-export default async function OwnerDashboard() {
+async function OwnerDashboardContent() {
+  await connection();
+
   const profile = await requireRole("owner");
 
   return (
@@ -208,5 +212,13 @@ export default async function OwnerDashboard() {
         </section>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function OwnerDashboard() {
+  return (
+    <Suspense fallback={<p>Loading owner dashboard...</p>}>
+      <OwnerDashboardContent />
+    </Suspense>
   );
 }
