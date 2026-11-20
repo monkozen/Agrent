@@ -20,6 +20,31 @@ export type AIEquipment = {
   condition: string | null;
 };
 
+export type EquipmentComparisonAnalysis = {
+  cheaperEquipmentId: string | null;
+  priceDifference: number;
+
+  higherHorsepowerEquipmentId: string | null;
+  horsepowerDifference: number | null;
+
+  sameCategory: boolean;
+  sameLocation: boolean;
+
+  sharedCrops: string[];
+  onlyEquipmentACrops: string[];
+  onlyEquipmentBCrops: string[];
+
+  sharedActivities: string[];
+  onlyEquipmentAActivities: string[];
+  onlyEquipmentBActivities: string[];
+};
+
+export type EquipmentComparisonResult = {
+  equipmentA: AIEquipment;
+  equipmentB: AIEquipment;
+  analysis: EquipmentComparisonAnalysis;
+};
+
 export type RecommendationInput = {
   crop?: string;
   activity?: string;
