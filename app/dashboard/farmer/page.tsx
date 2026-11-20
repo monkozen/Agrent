@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CalendarCheck, CheckCircle2, Heart, MapPin, Scale, Search, Sparkles, Wallet } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import {ActionCard, Banner, Panel, StatCard, StatusBadge} from "@/components/DashboardCard";
-import { requireRole } from "@/lib/auth/require-role";
+import { ActionCard, Banner, Panel, StatCard, StatusBadge } from "@/components/DashboardCard";
 
 // Placeholder data - replace with Supabase queries
 const rentals = [
@@ -16,17 +15,14 @@ const suggestions = [
   { id: 5, name: "Rice Planter", price: "₱3,000/day", place: "Batangas City" },
 ];
 
-export default async function FarmerDashboard() {
-  const profile = await requireRole("farmer");
-
+export default function FarmerDashboard() {
   return (
-    <DashboardLayout role="farmer" userName={profile.full_name}>
-  <div className="space-y-6">
-    <Banner title={`Welcome back, ${profile.full_name}!`} subtitle="Find the right equipment for your farming needs.">
-      <Link href="/equipment" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50">Browse Equipment</Link>
-
-      <Link href="/recommendations" className="rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">Try AI Recommendation</Link>
-    </Banner>
+    <DashboardLayout role="farmer" userName="Juan Dela Cruz">
+      <div className="space-y-6">
+        <Banner title="Welcome back, Juan!" subtitle="Find the right equipment for your farming needs.">
+          <Link href="/equipment" className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50">Browse Equipment</Link>
+          <Link href="/recommendations" className="rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">Try AI Recommendation</Link>
+        </Banner>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <StatCard label="Active Rentals" value={1} icon={<CalendarCheck size={20} />} trend="Next: Oct 10" />

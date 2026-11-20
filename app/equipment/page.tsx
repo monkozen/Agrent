@@ -24,7 +24,7 @@ export default function EquipmentListPage() {
       <div className="mx-auto grid max-w-6xl gap-6 px-4 py-8 lg:grid-cols-[240px_1fr]">
         <aside className="h-fit space-y-5 rounded-xl border border-gray-200 bg-white p-5">
           <h2 className="font-semibold text-gray-900">Filters</h2>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search equipment..." className="w-full rounded-lg border border-gray-300 px-3 py-2 text-sm outline-none focus:border-green-600" />
+          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search equipment..." className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:border-green-600" />
           <div>
             <p className="mb-2 text-sm font-medium text-gray-700">Category</p>
             {categories.map((c) => (
