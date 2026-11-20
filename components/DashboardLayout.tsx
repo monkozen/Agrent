@@ -3,6 +3,7 @@
 import { ReactNode, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import type { LucideIcon } from "lucide-react";
 import {
   Bell, LayoutDashboard, Search, Sparkles, Scale, CalendarCheck, Heart, Settings,
   LogOut, Tractor, PlusCircle, Wallet, User, Users, BarChart3, Menu, X,
@@ -11,163 +12,105 @@ import {
 
 export type Role = "farmer" | "owner" | "admin";
 
-const navByRole: Record<Role, { label: string; href: string; icon: ReactNode }[]> = {
+const nav: Record<Role, [string, string, LucideIcon][]> = {
   farmer: [
-    { label: "Dashboard", href: "/dashboard/farmer", icon: <LayoutDashboard size={18} /> },
-    { label: "Browse Equipment", href: "/equipment", icon: <Search size={18} /> },
-    { label: "AI Recommendation", href: "/recommendations", icon: <Sparkles size={18} /> },
-    { label: "Compare Equipment", href: "/compare", icon: <Scale size={18} /> },
-    { label: "My Rentals", href: "/dashboard/farmer/rentals", icon: <CalendarCheck size={18} /> },
-    { label: "Favorites", href: "/dashboard/farmer/favorites", icon: <Heart size={18} /> },
-    { label: "Settings", href: "/dashboard/farmer/settings", icon: <Settings size={18} /> },
+    ["Dashboard", "/dashboard/farmer", LayoutDashboard],
+    ["Browse Equipment", "/equipment", Search],
+    ["AI Recommendation", "/recommendations", Sparkles],
+    ["Compare Equipment", "/compare", Scale],
+    ["My Rentals", "/dashboard/farmer/rentals", CalendarCheck],
+    ["Favorites", "/dashboard/farmer/favorites", Heart],
+    ["Settings", "/dashboard/farmer/settings", Settings],
   ],
   owner: [
-    { label: "Dashboard", href: "/dashboard/owner", icon: <LayoutDashboard size={18} /> },
-    { label: "My Equipment", href: "/dashboard/owner/equipment", icon: <Tractor size={18} /> },
-    { label: "Add Equipment", href: "/dashboard/owner/equipment/new", icon: <PlusCircle size={18} /> },
-    { label: "Rental Requests", href: "/dashboard/owner/requests", icon: <CalendarCheck size={18} /> },
-    { label: "Earnings", href: "/dashboard/owner/earnings", icon: <Wallet size={18} /> },
-    { label: "Profile", href: "/dashboard/owner/profile", icon: <User size={18} /> },
-    { label: "Settings", href: "/dashboard/owner/settings", icon: <Settings size={18} /> },
+    ["Dashboard", "/dashboard/owner", LayoutDashboard],
+    ["My Equipment", "/dashboard/owner/equipment", Tractor],
+    ["Add Equipment", "/dashboard/owner/equipment/new", PlusCircle],
+    ["Rental Requests", "/dashboard/owner/requests", CalendarCheck],
+    ["Earnings", "/dashboard/owner/earnings", Wallet],
+    ["Profile", "/dashboard/owner/profile", User],
+    ["Settings", "/dashboard/owner/settings", Settings],
   ],
   admin: [
-    { label: "Dashboard", href: "/dashboard/admin", icon: <LayoutDashboard size={18} /> },
-    { label: "Users", href: "/dashboard/admin/users", icon: <Users size={18} /> },
-    { label: "Equipment Listings", href: "/dashboard/admin/listings", icon: <Tractor size={18} /> },
-    { label: "Rental Monitoring", href: "/dashboard/admin/rentals", icon: <CalendarCheck size={18} /> },
-    { label: "Reports", href: "/dashboard/admin/reports", icon: <BarChart3 size={18} /> },
-    { label: "Settings", href: "/dashboard/admin/settings", icon: <Settings size={18} /> },
+    ["Dashboard", "/dashboard/admin", LayoutDashboard],
+    ["Users", "/dashboard/admin/users", Users],
+    ["Equipment Listings", "/dashboard/admin/listings", Tractor],
+    ["Rental Monitoring", "/dashboard/admin/rentals", CalendarCheck],
+    ["Reports", "/dashboard/admin/reports", BarChart3],
+    ["Settings", "/dashboard/admin/settings", Settings],
   ],
 };
 
 const roleLabel: Record<Role, string> = { farmer: "Farmer", owner: "Equipment Owner", admin: "Administrator" };
+const sidebarBg = { background: "linear-gradient(180deg, #14532d 0%, #166534 100%)" };
 
-export default function DashboardLayout({
-  role, userName, children,
-}: { role: Role; userName: string; children: ReactNode }) {
+export default function DashboardLayout({ role, userName, children }: { role: Role; userName: string; children: ReactNode }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [accountMenuOpen, setAccountMenuOpen] = useState(false);
 
   const sidebar = (
-    <nav className="flex h-full flex-col p-4">
-      <Link href="/" className="mb-6 flex items-center gap-2 px-2 text-lg font-bold text-green-800">
-        <Tractor className="h-5 w-5" /> AgriRent
+    <nav className="flex h-full flex-col p-5">
+      <Link href="/" className="mb-8 flex items-center gap-3">
+        <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-green-800 shadow-md"><Tractor size={24} /></span>
+        <span className="text-2xl font-extrabold tracking-tight text-white">AgriRent</span>
       </Link>
-      <ul className="flex-1 space-y-1">
-        {navByRole[role].map((item) => {
-          const active = pathname === item.href;
+      <p className="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-green-200">{roleLabel[role]}</p>
+      <ul className="flex-1 space-y-1.5">
+        {nav[role].map(([label, href, Icon]) => {
+          const active = pathname === href;
           return (
-            <li key={item.href}>
+            <li key={href}>
               <Link
-                href={item.href}
+                href={href}
                 onClick={() => setOpen(false)}
                 aria-current={active ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition ${
-                  active ? "bg-green-700 text-white" : "text-gray-600 hover:bg-green-50 hover:text-green-800"
+                className={`flex items-center gap-3 rounded-xl px-4 py-3 text-base font-semibold transition ${
+                  active ? "bg-white text-green-900 shadow-md" : "text-green-50 hover:bg-white/10"
                 }`}
               >
-                {item.icon} {item.label}
+                <Icon size={21} /> {label}
               </Link>
             </li>
           );
         })}
       </ul>
+      <button className="mt-4 flex items-center gap-3 rounded-xl border border-white/20 px-4 py-3 text-base font-semibold text-green-50 hover:bg-white/10">
+        <LogOut size={21} /> Log Out
+      </button>
     </nav>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <aside className="fixed inset-y-0 left-0 hidden w-60 border-r border-gray-200 bg-white lg:block">{sidebar}</aside>
-
+    <div className="min-h-screen">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 overflow-y-auto shadow-xl lg:block" style={sidebarBg}>{sidebar}</aside>
       {open && (
         <div className="fixed inset-0 z-40 lg:hidden">
           <div className="absolute inset-0 bg-black/40" onClick={() => setOpen(false)} />
-          <aside className="absolute inset-y-0 left-0 w-64 bg-white">{sidebar}</aside>
+          <aside className="absolute inset-y-0 left-0 w-72 overflow-y-auto" style={sidebarBg}>{sidebar}</aside>
         </div>
       )}
 
-      <div className="lg:pl-60">
-        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-gray-200 bg-white px-4 py-3 sm:px-8">
-          <button className="lg:hidden" onClick={() => setOpen((o) => !o)} aria-label="Toggle menu">
-            {open ? <X /> : <Menu />}
+      <div className="lg:pl-72">
+        <header className="sticky top-0 z-30 flex items-center justify-between border-b border-green-100 bg-white/85 px-4 py-3 backdrop-blur sm:px-8">
+          <button onClick={() => setOpen((o) => !o)} aria-label="Toggle menu" className="flex h-11 items-center gap-2 rounded-xl border border-gray-300 bg-white px-3 text-base font-semibold text-gray-800 lg:hidden">
+            {open ? <X size={20} /> : <Menu size={20} />} Menu
           </button>
-          <div className="ml-auto flex items-center gap-4">
-            <button
-              aria-label="Notifications"
-              className="text-gray-500 hover:text-gray-700"
-            >
+          <div className="ml-auto flex items-center gap-3">
+            <button aria-label="Notifications" className="relative flex h-11 w-11 items-center justify-center rounded-full bg-green-50 text-green-800 hover:bg-green-100">
               <Bell size={20} />
+              <span className="absolute right-2.5 top-2.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-amber-500" />
             </button>
-
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setAccountMenuOpen((value) => !value)}
-                aria-expanded={accountMenuOpen}
-                aria-haspopup="menu"
-                className="flex items-center gap-3 rounded-lg p-2 transition hover:bg-gray-100"
-              >
-                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-green-100 text-sm font-semibold text-green-800">
-                  {userName.charAt(0)}
-                </span>
-
-                <div className="hidden text-left leading-tight sm:block">
-                  <p className="text-sm font-medium text-gray-900">{userName}</p>
-                  <p className="text-xs text-gray-500">{roleLabel[role]}</p>
-                </div>
-
-                <ChevronDown
-                  size={16}
-                  className={`text-gray-500 transition-transform ${
-                    accountMenuOpen ? "rotate-180" : ""
-                  }`}
-                />
-              </button>
-
-              {accountMenuOpen && (
-                <div
-                  role="menu"
-                  className="absolute right-0 z-50 mt-2 w-56 rounded-lg border border-gray-200 bg-white py-2 shadow-lg"
-                >
-                  <Link
-                    href="/dashboard/profile"
-                    role="menuitem"
-                    onClick={() => setAccountMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <User size={16} />
-                    My Profile
-                  </Link>
-
-                  <Link
-                    href={`/dashboard/${role}/settings`}
-                    role="menuitem"
-                    onClick={() => setAccountMenuOpen(false)}
-                    className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50"
-                  >
-                    <Settings size={16} />
-                    Account Settings
-                  </Link>
-
-                  <div className="my-2 border-t border-gray-100" />
-
-                  <form action="/auth/signout" method="post">
-                    <button
-                      type="submit"
-                      role="menuitem"
-                      className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50"
-                    >
-                      <LogOut size={16} />
-                      Log Out
-                    </button>
-                  </form>
-                </div>
-              )}
+            <div className="flex items-center gap-3 rounded-full bg-green-50 py-1 pl-1 pr-4">
+              <span className="flex h-10 w-10 items-center justify-center rounded-full bg-green-700 text-base font-bold text-white">{userName.charAt(0)}</span>
+              <div className="hidden leading-tight sm:block">
+                <p className="text-sm font-bold text-gray-900">{userName}</p>
+                <p className="text-xs text-gray-600">{roleLabel[role]}</p>
+              </div>
             </div>
           </div>
         </header>
-        <main className="p-4 sm:p-8">{children}</main>
+        <main className="mx-auto max-w-7xl p-4 text-gray-900 sm:p-8">{children}</main>
       </div>
     </div>
   );

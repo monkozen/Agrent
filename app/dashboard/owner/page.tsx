@@ -1,224 +1,79 @@
 import Link from "next/link";
-import {ArrowRight, CalendarCheck, CheckCircle2, Heart, MapPin, Scale, Search, Sparkles, Wallet} from "lucide-react";
+import { CalendarCheck, Clock, Plus, Tractor, Wallet } from "lucide-react";
 import DashboardLayout from "@/components/DashboardLayout";
-import {ActionCard, Banner, Panel, StatCard, StatusBadge} from "@/components/DashboardCard";
-import { requireRole } from "@/lib/auth/require-role";
-import { Suspense } from "react";
-import { connection } from "next/server";
+import { Banner, BarChart, Panel, StatCard, StatusBadge } from "@/components/DashboardCard";
 
-const rentals = [
-  {
-    id: 1,
-    name: "Kubota M7040",
-    category: "Tractor",
-    dates: "Oct 10 - Oct 12, 2026",
-    status: "Approved",
-  },
-  {
-    id: 2,
-    name: "Yanmar Hand Tractor",
-    category: "Hand Tractor",
-    dates: "Sep 5 - Sep 6, 2026",
-    status: "Completed",
-  },
-  {
-    id: 3,
-    name: "Rice Planter",
-    category: "Planter",
-    dates: "Aug 14 - Aug 15, 2026",
-    status: "Completed",
-  },
+// Placeholder data - replace with Supabase queries
+const requests = [
+  { id: 1, farmer: "Juan Dela Cruz", equipment: "Kubota M7040", dates: "Oct 10 - Oct 12, 2026", total: "₱7,000" },
+  { id: 2, farmer: "Pedro Reyes", equipment: "Yanmar Hand Tractor", dates: "Oct 15 - Oct 17, 2026", total: "₱4,000" },
 ];
-
-const suggestions = [
-  {
-    id: 1,
-    name: "Kubota M7040",
-    price: "₱3,500/day",
-    place: "Nasugbu, Batangas",
-  },
-  {
-    id: 4,
-    name: "Rotavator",
-    price: "₱2,500/day",
-    place: "Talisay, Batangas",
-  },
-  {
-    id: 5,
-    name: "Rice Planter",
-    price: "₱3,000/day",
-    place: "Batangas City",
-  },
+const myEquipment = [
+  { name: "Kubota M7040", price: "₱3,500/day", status: "Rented" },
+  { name: "Yanmar Hand Tractor", price: "₱2,000/day", status: "Available" },
+  { name: "Rotavator", price: "₱2,500/day", status: "Maintenance" },
 ];
-
-async function OwnerDashboardContent() {
-  await connection();
-
-  const profile = await requireRole("owner");
-
-  return (
-    <DashboardLayout role="owner" userName={profile.full_name}>
-      <div className="space-y-6">
-        <Banner
-          title={`Welcome back, ${profile.full_name}!`}
-          subtitle="Manage your equipment and rental activities."
-        >
-          <Link
-            href="/equipment"
-            className="rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"
-          >
-            Browse Equipment
-          </Link>
-          <Link
-            href="/recommendations"
-            className="rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10"
-          >
-            Try AI Recommendation
-          </Link>
-        </Banner>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            label="Active Rentals"
-            value={1}
-            icon={<CalendarCheck size={20} />}
-            trend="Next: Oct 10"
-          />
-          <StatCard
-            label="Completed"
-            value={4}
-            icon={<CheckCircle2 size={20} />}
-            tone="blue"
-          />
-          <StatCard
-            label="Favorites"
-            value={6}
-            icon={<Heart size={20} />}
-            tone="purple"
-          />
-          <StatCard
-            label="Total Spent"
-            value="₱18,500"
-            icon={<Wallet size={20} />}
-            tone="amber"
-          />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-3">
-          <ActionCard
-            href="/equipment"
-            icon={<Search size={22} />}
-            title="Browse Equipment"
-            hint="Search and find equipment"
-          />
-          <ActionCard
-            href="/recommendations"
-            icon={<Sparkles size={22} />}
-            title="AI Recommendation"
-            hint="Get AI suggestions"
-          />
-          <ActionCard
-            href="/compare"
-            icon={<Scale size={22} />}
-            title="Compare Equipment"
-            hint="Compare two equipment"
-          />
-        </div>
-
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <Panel
-              title="My Recent Rentals"
-              href="/dashboard/owner/rentals"
-            >
-              {rentals.map((r) => (
-                <div
-                  key={r.id}
-                  className="flex items-center gap-4 px-5 py-4"
-                >
-                  <div className="h-12 w-12 shrink-0 rounded-lg bg-gray-100" />
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-gray-900">
-                      {r.name}
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      {r.category}
-                    </p>
-                  </div>
-                  <p className="hidden text-sm text-gray-500 sm:block">
-                    {r.dates}
-                  </p>
-                  <StatusBadge status={r.status} />
-                </div>
-              ))}
-            </Panel>
-          </div>
-
-          <div className="rounded-xl border border-green-200 bg-green-50 p-5">
-            <p className="text-xs font-semibold uppercase tracking-wide text-green-700">
-              Upcoming rental
-            </p>
-            <h3 className="mt-2 text-lg font-bold text-gray-900">
-              Kubota M7040
-            </h3>
-            <p className="mt-1 text-sm text-gray-600">
-              Oct 10 - Oct 12, 2026
-            </p>
-            <p className="mt-1 flex items-center gap-1 text-sm text-gray-600">
-              <MapPin size={14} /> Nasugbu, Batangas
-            </p>
-            <div className="mt-4 border-t border-green-200 pt-4 text-sm text-gray-700">
-              Estimated total
-              <span className="float-right font-semibold text-gray-900">
-                ₱10,500
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-semibold text-gray-900">
-              Suggested for you
-            </h2>
-            <Link
-              href="/equipment"
-              className="flex items-center gap-1 text-sm font-medium text-green-700 hover:underline"
-            >
-              See all <ArrowRight size={14} />
-            </Link>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            {suggestions.map((s) => (
-              <Link
-                key={s.id}
-                href={`/equipment/${s.id}`}
-                className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-sm transition hover:border-green-600 hover:shadow-md"
-              >
-                <div className="h-28 bg-gray-100" />
-                <div className="p-4">
-                  <p className="font-semibold text-gray-900">{s.name}</p>
-                  <p className="text-sm font-semibold text-green-800">
-                    {s.price}
-                  </p>
-                  <p className="mt-1 flex items-center gap-1 text-xs text-gray-500">
-                    <MapPin size={12} /> {s.place}
-                  </p>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-      </div>
-    </DashboardLayout>
-  );
-}
+const earnings = [
+  { label: "May", value: 1500 }, { label: "Jun", value: 2500 }, { label: "Jul", value: 1800 },
+  { label: "Aug", value: 3200 }, { label: "Sep", value: 2200 }, { label: "Oct", value: 4100 },
+];
 
 export default function OwnerDashboard() {
   return (
-    <Suspense fallback={<p>Loading owner dashboard...</p>}>
-      <OwnerDashboardContent />
-    </Suspense>
+    <DashboardLayout role="owner" userName="Maria Santos">
+      <div className="space-y-6">
+        <Banner title="Welcome back, Maria!" subtitle="Manage your equipment and rental requests.">
+          <Link href="/dashboard/owner/equipment/new" className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"><Plus size={16} /> Add Equipment</Link>
+          <Link href="/dashboard/owner/requests" className="rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">View Requests</Link>
+        </Banner>
+
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard label="My Equipment" value={3} icon={<Tractor size={20} />} />
+          <StatCard label="Pending Requests" value={2} icon={<Clock size={20} />} tone="amber" trend="Needs your response" />
+          <StatCard label="Total Rentals" value={5} icon={<CalendarCheck size={20} />} tone="blue" />
+          <StatCard label="Total Earnings" value="₱12,500" icon={<Wallet size={20} />} tone="purple" trend="+18% from last month" />
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-3">
+          <div className="space-y-6 lg:col-span-2">
+            <Panel title="Recent Rental Requests" href="/dashboard/owner/requests">
+              {requests.map((r) => (
+                <div key={r.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
+                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-100 font-semibold text-green-800">{r.farmer.charAt(0)}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900">{r.farmer}</p>
+                    <p className="text-xs text-gray-500">{r.equipment}</p>
+                  </div>
+                  <p className="text-sm text-gray-500">{r.dates}</p>
+                  <p className="text-sm font-semibold text-gray-900">{r.total}</p>
+                  <div className="flex gap-2">
+                    {/* TODO (backend): re-check date conflicts before approving */}
+                    <button className="rounded-md bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800">Approve</button>
+                    <button className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50">Reject</button>
+                  </div>
+                </div>
+              ))}
+            </Panel>
+
+            <Panel title="Earnings (last 6 months)">
+              <BarChart data={earnings} format={(n) => "₱" + n.toLocaleString("en-PH")} />
+            </Panel>
+          </div>
+
+          <Panel title="My Equipment" href="/dashboard/owner/equipment">
+            {myEquipment.map((e) => (
+              <div key={e.name} className="flex items-center gap-3 px-5 py-4">
+                <div className="h-11 w-11 shrink-0 rounded-lg bg-gray-100" />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-gray-900">{e.name}</p>
+                  <p className="text-xs text-gray-500">{e.price}</p>
+                </div>
+                <StatusBadge status={e.status} />
+              </div>
+            ))}
+          </Panel>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 }
