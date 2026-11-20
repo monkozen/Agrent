@@ -1,4 +1,3 @@
-
 export type Equipment = {
   id: string;
   name: string;
@@ -14,4 +13,5 @@ export type Equipment = {
   status: "available" | "reserved" | "rented" | "maintenance";
   description: string;
   imageUrl?: string;
+  ownerName?: string;
 };

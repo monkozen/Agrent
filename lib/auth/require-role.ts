@@ -1,3 +1,4 @@
+
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 
@@ -38,7 +39,12 @@ export async function requireRole(expectedRole: AppRole) {
 
   const role = profile.role as AppRole;
 
-  if (role !== expectedRole) {
+  // Owners can also access farmer/renter features.
+  const allowed =
+    role === expectedRole ||
+    (role === "owner" && expectedRole === "farmer");
+
+  if (!allowed) {
     const destination = dashboardRoutes[role];
 
     if (destination) {

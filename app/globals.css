@@ -41,13 +41,14 @@ article.bg-white:hover {
 }
 
 /* Equipment image placeholders: soft green with a leaf */
-div.bg-gray-100:not(.rounded-full) {
+.equipment-image-placeholder {
   position: relative;
   overflow: hidden;
   background-color: #d9ead0;
   background-image: linear-gradient(135deg, #eaf5e3 0%, #cfe5c3 100%);
 }
-div.bg-gray-100:not(.rounded-full)::before {
+
+.equipment-image-placeholder::before {
   content: "";
   position: absolute;
   inset: 0;

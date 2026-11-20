@@ -22,6 +22,7 @@ async function EquipmentDetailContent({
     .from("equipment")
     .select(`
       id,
+      owner_id,
       name,
       category_id,
       brand,
@@ -47,6 +48,19 @@ async function EquipmentDetailContent({
   }
 
   if (!item) notFound();
+
+  // Fetch the equipment owner's public name.
+  const { data: ownerData } = await supabase.rpc(
+    "get_public_equipment_owner_names",
+    {
+      owner_ids: [item.owner_id],
+    }
+  );
+
+  const ownerName =
+    (ownerData as { id: string; full_name: string }[] | null)
+      ?.find((owner) => owner.id === item.owner_id)?.full_name ??
+    "Unknown Owner";
 
   // 2. Fetch the category name.
   const { data: category } = await supabase
@@ -133,6 +147,15 @@ async function EquipmentDetailContent({
             }))}
             alt={item.name}
           />
+        </div>
+
+        <div className="mt-6 rounded-xl border border-gray-200 bg-white p-5">
+          <h1 className="text-xl font-bold text-gray-900">
+            {item.name}
+          </h1>
+          <p className="mt-2 text-sm text-gray-500">
+            Posted by: <span className="font-semibold text-gray-800">{ownerName}</span>
+          </p>
         </div>
 
         {/* Specifications */}

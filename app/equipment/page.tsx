@@ -26,37 +26,46 @@ export default function EquipmentListPage() {
         setLoading(true);
         setError("");
 
-        const [equipmentResult, categoriesResult] =
+        const [{ data: { user } }, categoriesResult] =
           await Promise.all([
-            supabase
-              .from("equipment")
-              .select(`
-                id,
-                name,
-                category_id,
-                brand,
-                model,
-                horsepower,
-                supported_activity,
-                rental_price,
-                pricing_unit,
-                location,
-                equipment_condition,
-                status,
-                description
-              `)
-              .eq("status", "available")
-              .order("created_at", { ascending: false }),
-
+            supabase.auth.getUser(),
             supabase
               .from("equipment_categories")
               .select("id, name")
               .order("name"),
           ]);
 
-        if (equipmentResult.error) {
-          throw new Error(equipmentResult.error.message);
+        let equipmentQuery = supabase
+          .from("equipment")
+          .select(`
+    id,
+    name,
+    category_id,
+    brand,
+    model,
+    horsepower,
+    supported_activity,
+    rental_price,
+    pricing_unit,
+    location,
+    equipment_condition,
+    status,
+    description,
+    owner_id
+  `)
+          .eq("status", "available");
+
+        if (user) {
+          equipmentQuery = equipmentQuery.neq(
+            "owner_id",
+            user.id
+          );
         }
+
+        const equipmentResult = await equipmentQuery.order(
+          "created_at",
+          { ascending: false }
+        );
 
         if (categoriesResult.error) {
           throw new Error(categoriesResult.error.message);
@@ -71,6 +80,25 @@ export default function EquipmentListPage() {
         );
 
         const equipmentList = equipmentResult.data ?? [];
+        // Fetch equipment owner names.
+        const ownerIds = [
+          ...new Set(equipmentList.map((item) => item.owner_id)),
+        ];
+
+        const ownersResult = ownerIds.length
+          ? await supabase.rpc("get_public_equipment_owner_names", {
+            owner_ids: ownerIds,
+          })
+          : { data: [], error: null };
+
+        const ownerMap = new Map<string, string>(
+          (ownersResult.data ?? []).map(
+            (owner: { id: string; full_name: string }) => [
+              owner.id,
+              owner.full_name,
+            ]
+          )
+          );
 
         const equipmentIds = equipmentList.map(
           (item) => item.id
@@ -160,6 +188,7 @@ export default function EquipmentListPage() {
             status: "available",
             description: item.description ?? "",
             imageUrl: imageMap.get(item.id),
+            ownerName: ownerMap.get(item.owner_id) ?? "Unknown Owner",
           }));
 
         if (!active) return;

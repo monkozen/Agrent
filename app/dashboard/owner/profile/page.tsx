@@ -1,4 +1,4 @@
-
+import { connection } from "next/server";
 import { Suspense } from "react";
 import { User, Loader2 } from "lucide-react";
 
@@ -9,6 +9,7 @@ import OwnerProfileForm from "./OwnerProfileForm";
 
 // Authenticated owner profile content
 async function OwnerProfileContent() {
+  await connection();
   const profile = await requireRole("owner");
 
   const displayName =
