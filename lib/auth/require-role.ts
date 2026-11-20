@@ -39,10 +39,10 @@ export async function requireRole(expectedRole: AppRole) {
   const role = profile.role as AppRole;
 
   if (role !== expectedRole) {
-    const correctDashboard = dashboardRoutes[role];
+    const destination = dashboardRoutes[role];
 
-    if (correctDashboard) {
-      redirect(correctDashboard);
+    if (destination) {
+      redirect(destination);
     }
 
     redirect("/login");

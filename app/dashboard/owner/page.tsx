@@ -1,79 +1,94 @@
 import Link from "next/link";
-import { CalendarCheck, Clock, Plus, Tractor, Wallet } from "lucide-react";
+import { ArrowRight, CalendarCheck, PlusCircle, Tractor, Wallet } from "lucide-react";
+import { Suspense } from "react";
 import DashboardLayout from "@/components/DashboardLayout";
-import { Banner, BarChart, Panel, StatCard, StatusBadge } from "@/components/DashboardCard";
+import { Banner, Panel, StatCard, StatusBadge } from "@/components/DashboardCard";
+import { requireRole } from "@/lib/auth/require-role";
 
-// Placeholder data - replace with Supabase queries
+// Starter Owner Dashboard: your supplied "Owner" file was actually a role picker.
+// Replace placeholders with owner-scoped Supabase queries when integrated.
+const equipment = [
+  { id: 1, name: "Kubota M7040", category: "Tractor", price: "₱3,500/day", status: "Active" },
+  { id: 2, name: "Yanmar Hand Tractor", category: "Hand Tractor", price: "₱2,000/day", status: "Active" },
+];
+
 const requests = [
-  { id: 1, farmer: "Juan Dela Cruz", equipment: "Kubota M7040", dates: "Oct 10 - Oct 12, 2026", total: "₱7,000" },
-  { id: 2, farmer: "Pedro Reyes", equipment: "Yanmar Hand Tractor", dates: "Oct 15 - Oct 17, 2026", total: "₱4,000" },
-];
-const myEquipment = [
-  { name: "Kubota M7040", price: "₱3,500/day", status: "Rented" },
-  { name: "Yanmar Hand Tractor", price: "₱2,000/day", status: "Available" },
-  { name: "Rotavator", price: "₱2,500/day", status: "Maintenance" },
-];
-const earnings = [
-  { label: "May", value: 1500 }, { label: "Jun", value: 2500 }, { label: "Jul", value: 1800 },
-  { label: "Aug", value: 3200 }, { label: "Sep", value: 2200 }, { label: "Oct", value: 4100 },
+  { id: 1, equipment: "Kubota M7040", renter: "Juan Dela Cruz", status: "Approved" },
+  { id: 2, equipment: "Yanmar Hand Tractor", renter: "Pedro Reyes", status: "Completed" },
 ];
 
-export default function OwnerDashboard() {
+async function OwnerDashboardContent() {
+  const profile = await requireRole("owner");
+  const displayName = profile.full_name?.trim() || "Owner";
+
   return (
-    <DashboardLayout role="owner" userName="Maria Santos">
+    <DashboardLayout role="owner" userName={displayName}>
       <div className="space-y-6">
-        <Banner title="Welcome back, Maria!" subtitle="Manage your equipment and rental requests.">
-          <Link href="/dashboard/owner/equipment/new" className="flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"><Plus size={16} /> Add Equipment</Link>
-          <Link href="/dashboard/owner/requests" className="rounded-lg border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">View Requests</Link>
+        <Banner
+          title={`Welcome back, ${displayName}!`}
+          subtitle="Manage your equipment listings, rental requests, and earnings."
+        >
+          <Link
+            href="/dashboard/owner/equipment/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-white px-4 py-2 text-sm font-semibold text-green-800 hover:bg-green-50"
+          >
+            <PlusCircle size={18} /> Add Equipment
+          </Link>
         </Banner>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard label="My Equipment" value={3} icon={<Tractor size={20} />} />
-          <StatCard label="Pending Requests" value={2} icon={<Clock size={20} />} tone="amber" trend="Needs your response" />
-          <StatCard label="Total Rentals" value={5} icon={<CalendarCheck size={20} />} tone="blue" />
-          <StatCard label="Total Earnings" value="₱12,500" icon={<Wallet size={20} />} tone="purple" trend="+18% from last month" />
+          <StatCard label="My Equipment" value={2} icon={<Tractor size={20} />} trend="Demo data" />
+          <StatCard label="Rental Requests" value={1} icon={<CalendarCheck size={20} />} tone="blue" />
+          <StatCard label="Completed Rentals" value={4} icon={<CalendarCheck size={20} />} tone="amber" />
+          <StatCard label="Total Earnings" value="₱21,000" icon={<Wallet size={20} />} tone="purple" />
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-3">
-          <div className="space-y-6 lg:col-span-2">
-            <Panel title="Recent Rental Requests" href="/dashboard/owner/requests">
-              {requests.map((r) => (
-                <div key={r.id} className="flex flex-wrap items-center gap-4 px-5 py-4">
-                  <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-100 font-semibold text-green-800">{r.farmer.charAt(0)}</span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900">{r.farmer}</p>
-                    <p className="text-xs text-gray-500">{r.equipment}</p>
-                  </div>
-                  <p className="text-sm text-gray-500">{r.dates}</p>
-                  <p className="text-sm font-semibold text-gray-900">{r.total}</p>
-                  <div className="flex gap-2">
-                    {/* TODO (backend): re-check date conflicts before approving */}
-                    <button className="rounded-md bg-green-700 px-3 py-1.5 text-xs font-semibold text-white hover:bg-green-800">Approve</button>
-                    <button className="rounded-md border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50">Reject</button>
-                  </div>
-                </div>
-              ))}
-            </Panel>
-
-            <Panel title="Earnings (last 6 months)">
-              <BarChart data={earnings} format={(n) => "₱" + n.toLocaleString("en-PH")} />
-            </Panel>
-          </div>
-
+        <div className="grid gap-6 lg:grid-cols-2">
           <Panel title="My Equipment" href="/dashboard/owner/equipment">
-            {myEquipment.map((e) => (
-              <div key={e.name} className="flex items-center gap-3 px-5 py-4">
-                <div className="h-11 w-11 shrink-0 rounded-lg bg-gray-100" />
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-medium text-gray-900">{e.name}</p>
-                  <p className="text-xs text-gray-500">{e.price}</p>
+            {equipment.map((item) => (
+              <div key={item.id} className="flex items-center gap-3 px-5 py-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-700">
+                  <Tractor size={22} />
                 </div>
-                <StatusBadge status={e.status} />
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900">{item.name}</p>
+                  <p className="text-xs text-gray-500">{item.category} · {item.price}</p>
+                </div>
+                <StatusBadge status={item.status} />
+              </div>
+            ))}
+          </Panel>
+
+          <Panel title="Recent Rental Requests" href="/dashboard/owner/requests">
+            {requests.map((request) => (
+              <div key={request.id} className="flex items-center gap-3 px-5 py-4">
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-gray-900">{request.equipment}</p>
+                  <p className="text-xs text-gray-500">Renter: {request.renter}</p>
+                </div>
+                <StatusBadge status={request.status} />
               </div>
             ))}
           </Panel>
         </div>
+
+        <div className="flex justify-end">
+          <Link
+            href="/dashboard/owner/earnings"
+            className="inline-flex items-center gap-2 text-sm font-semibold text-green-700 hover:underline"
+          >
+            View earnings <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
     </DashboardLayout>
+  );
+}
+
+export default function OwnerDashboard() {
+  return (
+    <Suspense fallback={<p>Loading owner dashboard...</p>}>
+      <OwnerDashboardContent />
+    </Suspense>
   );
 }
