@@ -31,7 +31,7 @@ export default function FarmerRentalsPage() {
   const count = (s: Status) => rentals.filter((r) => r.status === s).length;
 
   return (
-    <DashboardLayout role="farmer" userName="Juan Dela Cruz">
+    <DashboardLayout role="farmer">
       <PageHeader icon={CalendarCheck} title="My Rentals" subtitle="Track the equipment you requested and rented." />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">

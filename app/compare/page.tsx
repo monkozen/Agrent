@@ -193,7 +193,7 @@ export default function ComparePage() {
   }
 
   return (
-    <DashboardLayout role="farmer" userName="Juan Dela Cruz">
+    <DashboardLayout role="farmer">
       <h1 className="text-2xl font-semibold text-gray-900">Compare Equipment</h1>
       <p className="mt-1 text-sm text-gray-500">
         Select two available listings to compare real rental details and get an AI explanation.

@@ -18,7 +18,7 @@ const badge: Record<string, string> = {
 export default function OwnerEquipmentPage() {
   const count = (s: string) => items.filter((i) => i.status === s).length;
   return (
-    <DashboardLayout role="owner" userName="Maria Santos">
+    <DashboardLayout role="owner">
       <PageHeader icon={Tractor} title="My Equipment" subtitle="Manage the equipment you listed for rent.">
         <Link href="/dashboard/owner/equipment/new" className="flex items-center gap-2 rounded-lg bg-green-700 px-4 py-2.5 text-sm font-semibold text-white hover:bg-green-800">
           <Plus size={18} /> Add Equipment

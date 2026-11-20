@@ -26,7 +26,7 @@ export default function OwnerRequestsPage() {
   const answer = (id: number, status: Status) => setReqs((p) => p.map((r) => (r.id === id ? { ...r, status } : r)));
 
   return (
-    <DashboardLayout role="owner" userName="Maria Santos">
+    <DashboardLayout role="owner">
       <PageHeader icon={CalendarCheck} title="Rental Requests" subtitle="Review requests from farmers for your equipment." />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">

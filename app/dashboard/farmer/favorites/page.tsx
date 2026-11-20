@@ -19,7 +19,7 @@ export default function FarmerFavoritesPage() {
   const remove = (id: number) => setItems((p) => p.filter((i) => i.id !== id));
 
   return (
-    <DashboardLayout role="farmer" userName="Juan Dela Cruz">
+    <DashboardLayout role="farmer">
       <PageHeader icon={Heart} title="Favorites" subtitle="Equipment you saved for later." />
 
       {items.length === 0 ? (

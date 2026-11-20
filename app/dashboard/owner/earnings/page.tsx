@@ -17,7 +17,7 @@ const max = Math.max(...months.map((m) => m.value));
 
 export default function OwnerEarningsPage() {
   return (
-    <DashboardLayout role="owner" userName="Maria Santos">
+    <DashboardLayout role="owner">
       <PageHeader icon={Wallet} title="Earnings" subtitle="Money you made from rentals." />
 
       <div className="mb-6 grid gap-4 sm:grid-cols-3">

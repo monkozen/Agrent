@@ -88,7 +88,7 @@ async function OwnerDashboardContent() {
 export default function OwnerDashboard() {
   return (
     <Suspense fallback={<p>Loading owner dashboard...</p>}>
-      <OwnerDashboardContent />
+      <OwnerDashboardContent/>
     </Suspense>
   );
 }

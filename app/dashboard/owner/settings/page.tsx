@@ -30,7 +30,7 @@ export default function OwnerSettingsPage() {
     setMsg("Password updated (demo only).");
   }
   return (
-    <DashboardLayout role="owner" userName="Maria Santos">
+    <DashboardLayout role="owner">
       <PageHeader icon={Settings} title="Settings" subtitle="Notifications and account security." />
       <div className="grid gap-6 lg:grid-cols-2">
         <section className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">

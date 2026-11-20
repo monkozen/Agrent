@@ -168,7 +168,7 @@ export default function RecommendationsPage() {
   }
 
   return (
-    <DashboardLayout role="farmer" userName="Juan Dela Cruz">
+    <DashboardLayout role="farmer">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-gray-900">
