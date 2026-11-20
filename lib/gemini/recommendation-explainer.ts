@@ -19,6 +19,8 @@ function isTemporaryGeminiError(error: unknown) {
   return (
     message.includes('"code":503') ||
     message.includes("UNAVAILABLE") ||
+    message.includes('"code":504') ||
+    message.includes("DEADLINE_EXCEEDED") ||
     message.includes('"code":429') ||
     message.includes("RESOURCE_EXHAUSTED")
   );
@@ -86,7 +88,8 @@ Write a short recommendation containing:
 
 async function callModel(
   model: string,
-  prompt: string
+  prompt: string,
+  timeout = 8000
 ) {
   const gemini = getGeminiClient();
 
@@ -94,6 +97,13 @@ async function callModel(
     await gemini.models.generateContent({
       model,
       contents: prompt,
+      config: {
+        httpOptions: {
+          timeout,
+        },
+        maxOutputTokens: 350,
+        automaticContinuation: false,
+      },
     });
 
   if (!response.text) {
@@ -125,7 +135,8 @@ export async function generateRecommendationExplanation(
   try {
     const explanation = await callModel(
       "gemini-3.8-flash",
-      prompt
+      prompt,
+      5000
     );
 
     return {
@@ -143,7 +154,8 @@ export async function generateRecommendationExplanation(
 
     const explanation = await callModel(
       "gemini-3.5-flash-lite",
-      prompt
+      prompt,
+      8000
     );
 
     return {
