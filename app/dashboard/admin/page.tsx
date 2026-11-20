@@ -49,7 +49,7 @@ async function AdminDashboardContent() {
       <div className="space-y-6">
         <Banner
           title="System Overview"
-          subtitle="Monitor users, equipment listings, and rentals across AgriRent."
+          subtitle="Monitor users, equipment listings, and rentals across Agrent."
         />
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -110,7 +110,7 @@ async function AdminDashboardContent() {
 export default function AdminDashboard() {
   return (
     <Suspense fallback={<p>Loading admin dashboard...</p>}>
-      <AdminDashboardContent />
+      <AdminDashboardContent/>
     </Suspense>
   );
 }

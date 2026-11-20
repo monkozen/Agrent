@@ -52,10 +52,10 @@ function buildPrompt(
   );
 
   return `
-You are the recommendation explanation assistant for AgriRent,
+You are the recommendation explanation assistant for Agrent,
 an agricultural equipment rental platform.
 
-The AgriRent backend has already filtered, validated, scored,
+The Agrent backend has already filtered, validated, scored,
 and ranked the equipment below.
 
 IMPORTANT RULES:

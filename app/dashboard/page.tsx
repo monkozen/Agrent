@@ -32,10 +32,10 @@ export default function DashboardPicker() {
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-green-50 px-4 py-12">
       <Link href="/" className="mb-8 flex items-center gap-2 text-xl font-bold text-green-800">
-        <Tractor className="h-6 w-6" /> AgriRent
+        <Tractor className="h-6 w-6" /> Agrent
       </Link>
 
-      <h1 className="text-center text-3xl font-bold text-gray-900">How will you use AgriRent today?</h1>
+      <h1 className="text-center text-3xl font-bold text-gray-900">How will you use Agrent today?</h1>
       <p className="mt-2 text-center text-gray-600">Choose your dashboard to continue.</p>
 
       <div className="mt-10 grid w-full max-w-3xl gap-6 md:grid-cols-2">
@@ -68,7 +68,7 @@ export default function DashboardPicker() {
         ))}
       </div>
 
-      <p className="mt-10 text-sm text-gray-500">AgriRent © 2026</p>
+      <p className="mt-10 text-sm text-gray-500">Agrent © 2026</p>
     </main>
   );
 }

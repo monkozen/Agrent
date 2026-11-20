@@ -83,7 +83,7 @@ export default function DashboardLayout({ role, userName, children }: DashboardL
         <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-white text-green-800 shadow-md">
           <Tractor size={24} />
         </span>
-        <span className="text-2xl font-extrabold tracking-tight text-white">AgriRent</span>
+        <span className="text-2xl font-extrabold tracking-tight text-white">Agrent</span>
       </Link>
 
       <p className="mb-2 px-3 text-xs font-bold uppercase tracking-widest text-green-200">

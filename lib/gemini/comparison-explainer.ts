@@ -39,9 +39,9 @@ function buildComparisonPrompt(
 
   return `
 You are the equipment comparison explanation assistant
-for AgriRent, an agricultural equipment rental platform.
+for Agrent, an agricultural equipment rental platform.
 
-The AgriRent backend has already loaded and compared
+The Agrent backend has already loaded and compared
 the two equipment items below.
 
 IMPORTANT RULES:

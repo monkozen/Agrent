@@ -96,7 +96,7 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2.5 text-xl font-extrabold text-green-900">
           <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-green-700 text-white shadow-md"><Tractor size={22} /></span>
-          AgriRent
+          Agrent
         </Link>
         <nav className="hidden gap-8 text-base font-semibold text-gray-700 sm:flex">
           <Link href="/" className="hover:text-green-700">Home</Link>

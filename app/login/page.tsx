@@ -90,7 +90,7 @@ export default function LoginPage() {
           href="/"
           className="mb-6 flex items-center justify-center gap-2 text-xl font-bold text-green-800"
         >
-          <Tractor className="h-6 w-6" /> AgriRent
+          <Tractor className="h-6 w-6" /> Agrent
         </Link>
 
         <h1 className="text-center text-2xl font-semibold text-gray-900">

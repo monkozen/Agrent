@@ -175,7 +175,7 @@ export default function RecommendationsPage() {
             Find the Right Equipment
           </h1>
           <p className="mt-1 text-sm text-gray-500">
-            Let AgriRent recommend suitable equipment for your farming needs.
+            Let Agrent recommend suitable equipment for your farming needs.
           </p>
         </div>
         <Link
@@ -424,7 +424,7 @@ export default function RecommendationsPage() {
                         </ul>
                       ) : (
                         <p className="mt-2 text-sm text-gray-500">
-                          This item was returned by AgriRent&apos;s recommendation service.
+                          This item was returned by Agrent&apos;s recommendation service.
                         </p>
                       )}
                       {differentArea && (
@@ -472,7 +472,7 @@ export default function RecommendationsPage() {
                 ) : (
                   <p className="mt-3 text-sm text-gray-600">
                     AI explanation is temporarily unavailable. The ranked equipment
-                    results above still come from AgriRent&apos;s recommendation rules.
+                    results above still come from Agrent&apos;s recommendation rules.
                   </p>
                 )}
               </section>

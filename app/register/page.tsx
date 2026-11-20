@@ -121,7 +121,7 @@ export default function RegisterPage() {
           className="mb-6 flex items-center justify-center gap-2 text-xl font-bold text-green-800"
         >
           <Tractor className="h-6 w-6" />
-          AgriRent
+          Agrent
         </Link>
 
         {/* Heading */}
@@ -130,7 +130,7 @@ export default function RegisterPage() {
         </h1>
 
         <p className="mt-1 text-center text-sm text-gray-500">
-          Join AgriRent today
+          Join Agrent today
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
