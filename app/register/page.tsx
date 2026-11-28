@@ -1,40 +1,49 @@
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Tractor, UserRound, Wrench, Eye, EyeOff } from "lucide-react";
+import { Turnstile } from "@marsidev/react-turnstile";
 import { createClient } from "@/lib/supabase/client";
 
 const input =
   "w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm !text-gray-900 placeholder:text-gray-400 outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20";
 
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
 type Role = "farmer" | "owner";
 
 export default function RegisterPage() {
   const router = useRouter();
+  const turnstileRef = useRef<TurnstileInstance | null>(null);
 
   const [role, setRole] = useState<Role>("farmer");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    turnstileRef.current?.reset();
+  }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (loading) return;
 
     setError("");
     setSuccess("");
 
     const form = new FormData(event.currentTarget);
-
     const fullName = String(form.get("name") || "").trim();
     const email = String(form.get("email") || "").trim();
     const phone = String(form.get("phone") || "").trim();
     const location = String(form.get("location") || "").trim();
     const password = String(form.get("password") || "");
 
-    // Basic validation
     if (!fullName || !email || !phone || !location || !password) {
       setError("Please fill in all required fields.");
       return;
@@ -55,15 +64,19 @@ export default function RegisterPage() {
       return;
     }
 
+    if (!captchaToken) {
+      setError("Please complete the security verification.");
+      return;
+    }
     setLoading(true);
 
-    const supabase = createClient();
-
-    const { data, error: signUpError } =
-      await supabase.auth.signUp({
+    try {
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
         email,
         password,
         options: {
+          captchaToken,
           data: {
             full_name: fullName,
             phone,
@@ -73,49 +86,51 @@ export default function RegisterPage() {
         },
       });
 
-    if (signUpError) {
-      setError(signUpError.message);
-      setLoading(false);
-      return;
-    }
+      if (signUpError) {
+        if (signUpError.status === 429) {
+          setError(
+            "Too many attempts. Please wait a few minutes before trying again."
+          );
+        } else if (signUpError.code === "captcha_failed") {
+          setError(
+            "Security verification failed. Please complete the verification again."
+          );
+        } else {
+          setError(signUpError.message);
+        }
 
-    if (!data.user) {
-      setError("Unable to create account.");
-      setLoading(false);
-      return;
-    }
-
-    /*
-      If Confirm Email is OFF:
-      Supabase immediately creates a session.
-
-      If Confirm Email is ON:
-      User exists, but session is null until confirmation.
-    */
-
-    if (data.session) {
-      if (role === "owner") {
-        router.replace("/dashboard/owner");
-      } else {
-        router.replace("/dashboard/farmer");
+        setCaptchaToken(null);
+        setLoading(false);
+        return;
       }
 
-      router.refresh();
-      return;
+      if (!data.user) {
+        setError("Unable to create an account. Please try again.");
+        return;
+      }
+
+      if (data.session) {
+        router.replace(
+          role === "owner" ? "/dashboard/owner" : "/dashboard/farmer"
+        );
+        router.refresh();
+        return;
+      }
+
+      setSuccess(
+        "If registration was successful, please check your email for a confirmation link."
+      );
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      resetCaptcha();
+      setLoading(false);
     }
-
-    setSuccess(
-      "Account created successfully. Please check your email to confirm your account."
-    );
-
-    setLoading(false);
   }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-green-50 px-4 py-10">
       <div className="w-full max-w-md rounded-2xl border border-gray-200 bg-white p-8 shadow-sm">
-
-        {/* Logo */}
         <Link
           href="/"
           className="mb-6 flex items-center justify-center gap-2 text-xl font-bold text-green-800"
@@ -124,23 +139,16 @@ export default function RegisterPage() {
           Agrent
         </Link>
 
-        {/* Heading */}
         <h1 className="text-center text-2xl font-semibold text-gray-900">
           Create an Account
         </h1>
-
         <p className="mt-1 text-center text-sm text-gray-500">
           Join Agrent today
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-
-          {/* Role */}
           <div>
-            <p className="mb-2 text-sm font-medium text-gray-700">
-              I am a
-            </p>
-
+            <p className="mb-2 text-sm font-medium text-gray-700">I am a</p>
             <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
@@ -153,12 +161,8 @@ export default function RegisterPage() {
               >
                 <div className="flex items-center gap-2">
                   <UserRound className="h-5 w-5 text-green-700" />
-
-                  <span className="font-medium text-gray-900">
-                    Farmer
-                  </span>
+                  <span className="font-medium text-gray-900">Farmer</span>
                 </div>
-
                 <p className="mt-1 text-xs text-gray-500">
                   I want to rent equipment
                 </p>
@@ -175,12 +179,10 @@ export default function RegisterPage() {
               >
                 <div className="flex items-center gap-2">
                   <Wrench className="h-5 w-5 text-green-700" />
-
                   <span className="font-medium text-gray-900">
                     Equipment Owner
                   </span>
                 </div>
-
                 <p className="mt-1 text-xs text-gray-500">
                   I want to list equipment
                 </p>
@@ -188,15 +190,10 @@ export default function RegisterPage() {
             </div>
           </div>
 
-          {/* Full Name */}
           <div>
-            <label
-              htmlFor="name"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="name" className="mb-1 block text-sm font-medium text-gray-700">
               Full Name
             </label>
-
             <input
               id="name"
               name="name"
@@ -208,15 +205,10 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Email */}
           <div>
-            <label
-              htmlFor="email"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="mb-1 block text-sm font-medium text-gray-700">
               Email
             </label>
-
             <input
               id="email"
               name="email"
@@ -228,15 +220,10 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Phone */}
           <div>
-            <label
-              htmlFor="phone"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="phone" className="mb-1 block text-sm font-medium text-gray-700">
               Contact Number
             </label>
-
             <input
               id="phone"
               name="phone"
@@ -248,15 +235,10 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Location */}
           <div>
-            <label
-              htmlFor="location"
-              className="mb-1 block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="location" className="mb-1 block text-sm font-medium text-gray-700">
               Location
             </label>
-
             <input
               id="location"
               name="location"
@@ -268,69 +250,79 @@ export default function RegisterPage() {
             />
           </div>
 
-          {/* Password */}
-         <div>
-          <label
-            htmlFor="password"
-            className="mb-1 block text-sm font-medium text-gray-700"
-          >
-            Password
-          </label>
-
-          <div className="relative">
-            <input
-              id="password"
-              name="password"
-              type={showPassword ? "text" : "password"}
-              className={`${input} pr-10`}
-              placeholder="At least 8 characters"
-              autoComplete="new-password"
-              required
-              minLength={8}
-            />
-
-            <button
-              type="button"
-              onClick={() => setShowPassword((current) => !current)}
-              aria-label={
-                showPassword ? "Hide password" : "Show password"
-              }
-              className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600"
+          <div>
+            <label
+              htmlFor="password"
+              className="mb-1 block text-sm font-medium text-gray-700"
             >
-              {showPassword ? (
-                <EyeOff className="h-4 w-4" />
-              ) : (
-                <Eye className="h-4 w-4" />
-              )}
-            </button>
+              Password
+            </label>
+            <div className="relative">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? "text" : "password"}
+                className={`${input} pr-10`}
+                placeholder="At least 8 characters"
+                autoComplete="new-password"
+                required
+                minLength={8}
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((current) => !current)}
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
           </div>
-        </div>
 
-          {/* Error */}
+          <div className="flex justify-center">
+            <Turnstile
+              siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY!}
+              onSuccess={(token) => {
+                setCaptchaToken(token);
+                setError("");
+              }}
+              onExpire={() => {
+                setCaptchaToken(null);
+              }}
+              onError={() => {
+                setCaptchaToken(null);
+                setError(
+                  "Security verification failed. Please try again."
+                );
+              }}
+            />
+          </div>
+
           {error && (
             <p role="alert" className="text-sm text-red-600">
               {error}
             </p>
           )}
 
-          {/* Success */}
           {success && (
             <p role="status" className="text-sm text-green-700">
               {success}
             </p>
           )}
 
-          {/* Submit */}
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || !turnstileSiteKey}
             className="w-full rounded-lg bg-green-700 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Creating account…" : "Create Account"}
           </button>
         </form>
 
-        {/* Login */}
         <p className="mt-6 text-center text-sm text-gray-500">
           Already have an account?{" "}
           <Link

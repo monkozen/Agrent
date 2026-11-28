@@ -1,26 +1,54 @@
 
 "use client";
 
-import { useState, FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Eye, EyeOff, Tractor } from "lucide-react";
+import {
+  Turnstile,
+  type TurnstileInstance,
+} from "@marsidev/react-turnstile";
 import { createClient } from "@/lib/supabase/client";
+
+const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
 
 export default function LoginPage() {
   const router = useRouter();
+
+  const turnstileRef = useRef<TurnstileInstance>(null);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
+  function resetCaptcha() {
+    setCaptchaToken(null);
+    turnstileRef.current?.reset();
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+
+    if (loading) return;
+
     setError("");
 
-    if (!email || !password) {
+    if (!email.trim() || !password) {
       setError("Enter your email and password.");
+      return;
+    }
+
+    if (!turnstileSiteKey) {
+      setError("Security verification is not configured.");
+      return;
+    }
+
+    if (!captchaToken) {
+      setError("Please complete the security verification.");
       return;
     }
 
@@ -31,21 +59,39 @@ export default function LoginPage() {
 
       const { data, error: loginError } =
         await supabase.auth.signInWithPassword({
-          email,
+          email: email.trim(),
           password,
+          options: {
+            captchaToken,
+          },
         });
 
-      if (loginError || !data.user) {
+      if (loginError) {
+        if (loginError.status === 429) {
+          setError(
+            "Too many login attempts. Please wait before trying again."
+          );
+        } else if (loginError.code === "captcha_failed") {
+          setError(
+            "Security verification failed. Please try again."
+          );
+        } else {
+          setError("Invalid email or password.");
+        }
+
+        return;
+      }
+
+      if (!data.user) {
         setError("Invalid email or password.");
         return;
       }
 
-      const { data: profile, error: profileError } =
-        await supabase
-          .from("profiles")
-          .select("role, account_status")
-          .eq("id", data.user.id)
-          .single();
+      const { data: profile, error: profileError } = await supabase
+        .from("profiles")
+        .select("role, account_status")
+        .eq("id", data.user.id)
+        .single();
 
       if (profileError || !profile) {
         await supabase.auth.signOut({ scope: "local" });
@@ -65,20 +111,26 @@ export default function LoginPage() {
         admin: "/dashboard/admin",
       } as const;
 
-      const role = profile.role as keyof typeof dashboardRoutes;
-      const destination = dashboardRoutes[role];
+      type DashboardRole = keyof typeof dashboardRoutes;
 
-      if (!destination) {
+      const role = profile.role as unknown;
+
+      if (
+        typeof role !== "string" ||
+        !["farmer", "owner", "admin"].includes(role)
+      ) {
         await supabase.auth.signOut({ scope: "local" });
         setError("Invalid account role.");
         return;
       }
 
+      const destination = dashboardRoutes[role as DashboardRole];
       router.replace(destination);
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
+      resetCaptcha();
       setLoading(false);
     }
   }
@@ -96,11 +148,16 @@ export default function LoginPage() {
         <h1 className="text-center text-2xl font-semibold text-gray-900">
           Welcome back
         </h1>
+
         <p className="mt-1 text-center text-sm text-gray-500">
           Log in to your account
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4" noValidate>
+        <form
+          onSubmit={handleSubmit}
+          className="mt-6 space-y-4"
+          noValidate
+        >
           <div>
             <label
               htmlFor="email"
@@ -108,6 +165,7 @@ export default function LoginPage() {
             >
               Email
             </label>
+
             <input
               id="email"
               type="email"
@@ -115,7 +173,8 @@ export default function LoginPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 caret-gray-900 outline-none placeholder:text-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600/20"
+              disabled={loading}
+              className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm text-gray-900 caret-gray-900 outline-none placeholder:text-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600/20 disabled:opacity-60"
             />
           </div>
 
@@ -127,6 +186,7 @@ export default function LoginPage() {
               >
                 Password
               </label>
+
               <Link
                 href="/forgot-password"
                 className="text-xs text-green-700 hover:underline"
@@ -143,12 +203,16 @@ export default function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Enter your password"
-                className="w-full rounded-lg border border-gray-300 px-3 py-2.5 pr-10 text-sm outline-none focus:border-green-600 focus:ring-2 focus:ring-green-600/20 text-gray-900 bg-white caret-gray-900 placeholder:text-gray-300"
+                disabled={loading}
+                className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 pr-10 text-sm text-gray-900 caret-gray-900 outline-none placeholder:text-gray-300 focus:border-green-600 focus:ring-2 focus:ring-green-600/20 disabled:opacity-60"
               />
+
               <button
                 type="button"
                 onClick={() => setShowPassword((s) => !s)}
-                aria-label={showPassword ? "Hide password" : "Show password"}
+                aria-label={
+                  showPassword ? "Hide password" : "Show password"
+                }
                 className="absolute inset-y-0 right-0 flex w-10 items-center justify-center text-gray-400 hover:text-gray-600"
               >
                 {showPassword ? (
@@ -160,6 +224,36 @@ export default function LoginPage() {
             </div>
           </div>
 
+          <div className="flex justify-center">
+            {turnstileSiteKey ? (
+              <Turnstile
+                ref={turnstileRef}
+                siteKey={turnstileSiteKey}
+                options={{
+                  theme: "light",
+                  size: "flexible",
+                }}
+                onSuccess={(token) => {
+                  setCaptchaToken(token);
+                }}
+                onExpire={() => {
+                  setCaptchaToken(null);
+                }}
+                onError={() => {
+                  setCaptchaToken(null);
+                  setError(
+                    "Security verification failed. Please try again."
+                  );
+                }}
+              />
+            ) : (
+              <p role="alert" className="text-sm text-red-600">
+                Security verification is not configured. Please contact
+                support.
+              </p>
+            )}
+          </div>
+
           {error && (
             <p role="alert" className="text-sm text-red-600">
               {error}
@@ -168,8 +262,8 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            disabled={loading}
-            className="w-full rounded-lg bg-green-700 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800 disabled:opacity-60"
+            disabled={loading || !turnstileSiteKey}
+            className="w-full rounded-lg bg-green-700 py-2.5 text-sm font-semibold text-white transition hover:bg-green-800 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {loading ? "Logging in…" : "Log in"}
           </button>
